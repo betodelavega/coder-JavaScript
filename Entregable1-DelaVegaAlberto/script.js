@@ -1,36 +1,58 @@
-let balance = 10000;
+let balance = parseFloat(localStorage.getItem('balance')) || 10000;
+console.log('Saldo inicial:', balance);
 
-function showBalance() {
-    alert(`Tu saldo actual es: $${balance}`);
+function updateBalanceDisplay() {
+  document.getElementById(
+    'balanceDisplay'
+  ).textContent = `Tu saldo actual es: $${balance}`;
 }
 
-function transferMoney() {
-    let amount = parseFloat(prompt("Ingresa la cantidad a transferir:"));
+function transferMoney(amount) {
+  if (amount > balance) {
+    alert(`Saldo insuficiente. Tu saldo actual es: $${balance}`);
+    return false;
+  }
+  balance -= amount;
+  localStorage.setItem('balance', balance);
+  console.log('Saldo después de transferir:', balance);
+  updateBalanceDisplay();
+  return true;
+}
+
+function addMoney(amount) {
+  balance += amount;
+  localStorage.setItem('balance', balance);
+  console.log('Saldo después de agregar:', balance);
+  updateBalanceDisplay();
+}
+
+document
+  .getElementById('showBalanceBtn')
+  .addEventListener('click', updateBalanceDisplay);
+
+document
+  .getElementById('transferMoneyForm')
+  .addEventListener('submit', function (event) {
+    event.preventDefault();
+    const amount = parseFloat(document.getElementById('transferAmount').value);
     if (isNaN(amount) || amount <= 0) {
-        alert("Cantidad inválida. Por favor ingresa un número positivo.");
-        return;
+      alert('Por favor, ingresa una cantidad válida para transferir.');
+      return;
     }
-    if (amount > balance) {
-        alert(`Saldo insuficiente. Tu saldo actual es: $${balance}`);
-        if (confirm("¿Quieres intentar una nueva transferencia?")) {
-            transferMoney();
-        }
-        return;
-    }
-    balance -= amount;
-    alert(`¡Transferencia exitosa! Tu nuevo saldo es: $${balance}`);
-}
+    transferMoney(amount);
+  });
 
-function addMoney() {
-    let amount = parseFloat(prompt("Ingresa la cantidad a agregar:"));
+document
+  .getElementById('addMoneyForm')
+  .addEventListener('submit', function (event) {
+    event.preventDefault();
+    const amount = parseFloat(document.getElementById('addAmount').value);
     if (isNaN(amount) || amount <= 0) {
-        alert("Cantidad inválida. Por favor ingresa un número positivo.");
-        return;
+      alert('Por favor, ingresa una cantidad válida para agregar.');
+      return;
     }
-    balance += amount;
-    alert(`¡Saldo agregado exitosamente! Tu nuevo saldo es: $${balance}`);
-}
+    addMoney(amount);
+  });
 
-document.getElementById("showBalanceBtn").addEventListener("click", showBalance);
-document.getElementById("transferMoneyBtn").addEventListener("click", transferMoney);
-document.getElementById("addMoneyBtn").addEventListener("click", addMoney);
+// Inicializa la visualización del saldo al cargar la página
+updateBalanceDisplay();
